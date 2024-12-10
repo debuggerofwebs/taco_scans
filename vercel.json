@@ -1,5 +1,12 @@
 {
-    "routes": [
-      { "src": "/Images/(.*)", "dest": "/public/Images/$1" }
-    ]
-  }
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/server.js" },
+    { "src": "/Images/(.*)", "dest": "/public/Images/$1" }
+  ]
+}
