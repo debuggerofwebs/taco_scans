@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fragmented Records - Manga</title>
+    <style>
+        /* Same styling as before */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        header {
+            background-color: #222;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .manga-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .manga-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            text-align: center;
+        }
+        .manga-card img {
+            width: 100%;
+            border-bottom: 2px solid #eee;
+        }
+        .manga-card h3 {
+            margin: 10px 0;
+            font-size: 1.2rem;
+        }
+        .manga-card button {
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .manga-card button:hover {
+            background-color: #0056b3;
+        }
+        .chapter-view {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .chapter-view img {
+            max-width: 100%;
+            border-radius: 15px;
+        }
+        .chapter-details {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.5s ease-in-out;
+        }
+        .chapter-details img {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 15px;
+            margin-right: 20px;
+        }
+        .chapter-details .details {
+            flex: 1;
+        }
+        .chapter-details h3 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .chapter-details p {
+            margin: 5px 0;
+        }
+        .chapter-details .author {
+            font-size: 0.9rem;
+            font-style: italic;
+            color: #555;
+        }
+        .chapter-view button {
+            margin: 10px 5px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .chapter-view button:hover {
+            background-color: #0056b3;
+        }
+        .back-btn {
+            margin-bottom: 20px;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #555;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .back-btn:hover {
+            background-color: #333;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Fragmented Records</h1>
+    </header>
+    <div class="container">
+        <div class="manga-list" id="manga-list">
+            <!-- Manga cards will be dynamically generated -->
+        </div>
+        <div class="chapter-view" id="chapter-view">
+            <a href="#" class="back-btn" onclick="goBack()">Home</a>
+            <div class="chapter-details">
+                <img id="chapter-cover" src="" alt="Manga Cover">
+                <div class="details">
+                    <h3 id="chapter-title">Manga Title</h3>
+                    <p id="chapter-snippet">Snippet for the manga...</p>
+                    <p class="author" id="chapter-author">Author: Unknown</p>
+                </div>
+            </div>
+            <div id="chapter-buttons"></div>
+            <div id="chapter-images"></div>
+        </div>
+    </div>
+
+    <script>
+        const mangas = [
+            {
+                title: "The Beginning After The End",
+                snippet: "Here We Go Again",
+                author: "ELiTE KiLLER",
+                cover: "Images/thebeginningafterend.jpg",
+                folder: "Images/The Beginning After The End"
+            },
+            {
+                title: "Solo Leveling",
+                snippet: "A new journey begins...",
+                author: "IDK",
+                cover: "Images/thebeginningafterend.jpg",
+                folder: "Solo Leveling"
+            },
+            {
+                title: "Omniscient Reader's Viewpoint",
+                snippet: "Here We Go Again",
+                author: "ELiTE KiLLER",
+                cover: "Images/thebeginningafterend.jpg",
+                folder: "Images/The Beginning After The End"
+            }
+        ];
+
+        const mangaList = document.getElementById('manga-list');
+        const chapterView = document.getElementById('chapter-view');
+        const chapterCover = document.getElementById('chapter-cover');
+        const chapterTitle = document.getElementById('chapter-title');
+        const chapterSnippet = document.getElementById('chapter-snippet');
+        const chapterAuthor = document.getElementById('chapter-author');
+        const chapterButtons = document.getElementById('chapter-buttons');
+        const chapterImages = document.getElementById('chapter-images');
+
+        mangas.forEach((manga, index) => {
+            const mangaCard = document.createElement('div');
+            mangaCard.classList.add('manga-card');
+
+            mangaCard.innerHTML = `
+                <img src="${manga.cover}" alt="${manga.title}">
+                <h3>${manga.title}</h3>
+                <p>${manga.snippet}</p>
+                <button onclick="showChapters(${index})">View Chapters</button>
+            `;
+
+            mangaList.appendChild(mangaCard);
+        });
+
+        async function showChapters(mangaIndex) {
+            const manga = mangas[mangaIndex];
+            mangaList.style.display = 'none';
+            chapterView.style.display = 'block';
+
+            chapterCover.src = manga.cover;
+            chapterTitle.textContent = manga.title;
+            chapterSnippet.textContent = manga.snippet;
+            chapterAuthor.textContent = `Author: ${manga.author}`;
+
+            const chapters = await fetchChapters(manga.folder);
+            chapterButtons.innerHTML = chapters.map(
+                (chapter, i) => `<button onclick="openChapter('${manga.folder}', '${chapter}')">Chapter ${i + 1}</button>`
+            ).join('');            
+            if (chapters.length > 0) openChapter(manga.folder, chapters[0]);
+        }
+
+        async function fetchChapters(folder) {
+            // Mock chapter data - replace with server-side logic for dynamic folder fetching
+            return ["Chapter 1", "Chapter 2"];  // Example, replace with dynamic chapters list
+        }
+
+        function openChapter(folder, chapter) {
+            chapterImages.innerHTML = "";  // Clear any previous images
+            fetch(`/fetch-images?path=${encodeURIComponent(`${folder}/${chapter}`)}`)
+                .then(response => response.json())
+                .then(images => {
+                    chapterImages.innerHTML = images
+                        .map(imgSrc => `<img src="${imgSrc}" alt="Chapter Image" style="margin-bottom: 10px; border-radius: 15px; max-width: 100%;">`)
+                        .join('');
+                })
+                .catch(error => {
+                    console.error('Error fetching images:', error);
+                });
+        }
+
+        function goBack() {
+            mangaList.style.display = 'grid';
+            chapterView.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
