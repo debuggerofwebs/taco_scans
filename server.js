@@ -24,27 +24,48 @@ app.get('/fetch-chapters', (req, res) => {
 });
 
 // Fetch images for a chapter
+// app.get('/fetch-images', (req, res) => {
+//     const chapterPath = path.join(__dirname, 'public', req.query.path);
+
+//     fs.readdir(chapterPath, (err, files) => {
+//         if (err) {
+//             return res.status(500).json({ error: 'Could not read folder' });
+//         }
+
+//         // Only return image files (e.g., .jpeg, .jpg)
+//         const images = files
+//             .filter(file => /\.(jpeg|jpg|png|gif)$/i.test(file)) // Only image files
+//             .sort((a, b) => { // Sort the images by filename (so 03.jpeg comes before 04.jpeg)
+//                 const numA = parseInt(a.split('.')[0], 10);  // Get the number from filename (e.g., 03)
+//                 const numB = parseInt(b.split('.')[0], 10);  // Get the number from filename (e.g., 04)
+//                 return numA - numB;  // Compare numbers to sort
+//             })
+//             .map(file => `${req.query.path}/${file}`); // Generate file paths
+
+//         res.json(images); // Send the list of image paths to the frontend
+//     });
+// });
+
 app.get('/fetch-images', (req, res) => {
-    const chapterPath = path.join(__dirname, 'public', req.query.path);
+    const chapterPath = path.join(process.cwd(), 'public', req.query.path);
 
     fs.readdir(chapterPath, (err, files) => {
         if (err) {
-            return res.status(500).json({ error: 'Could not read folder' });
+            console.error(`Error reading directory: ${chapterPath}`, err); // Log error for debugging
+            return res.status(500).json({ error: `Could not read folder at ${chapterPath}` });
         }
 
-        // Only return image files (e.g., .jpeg, .jpg)
         const images = files
             .filter(file => /\.(jpeg|jpg|png|gif)$/i.test(file)) // Only image files
-            .sort((a, b) => { // Sort the images by filename (so 03.jpeg comes before 04.jpeg)
-                const numA = parseInt(a.split('.')[0], 10);  // Get the number from filename (e.g., 03)
-                const numB = parseInt(b.split('.')[0], 10);  // Get the number from filename (e.g., 04)
-                return numA - numB;  // Compare numbers to sort
-            })
-            .map(file => `${req.query.path}/${file}`); // Generate file paths
+            .sort((a, b) => parseInt(a.split('.')[0], 10) - parseInt(b.split('.')[0], 10)) // Sort numerically
+            .map(file => `${req.query.path}/${file}`); // Build file paths
 
-        res.json(images); // Send the list of image paths to the frontend
+        res.json(images); // Return the list of images
     });
 });
+
+
+
 
 // Start the server
 app.listen(PORT, () => {
